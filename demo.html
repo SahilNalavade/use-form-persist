@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>use-form-persist - Live Demo</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/use-form-persist@latest/dist/index.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .demo-content {
+            padding: 40px;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .form-section h3 {
+            color: #2196F3;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1976D2;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+            transform: translateY(-1px);
+        }
+        
+        .debug-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .debug-section h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .debug-section pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #d4edda;
+            color: #155724;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .status-indicator.loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .instructions {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .instructions h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            color: #1976d2;
+        }
+        
+        .feature-highlight {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(33, 150, 243, 0.05);
+            border-radius: 4px;
+        }
+        
+        .feature-highlight::before {
+            content: "✓";
+            background: #2196F3;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .github-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .github-link a {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #24292e;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .github-link a:hover {
+            background: #1a1e22;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>use-form-persist</h1>
+            <p>Live Interactive Demo - Your form state persists automatically!</p>
+        </div>
+        
+        <div class="demo-content">
+            <div class="instructions">
+                <h3>Try It Out!</h3>
+                <ol>
+                    <li>Fill out the form below</li>
+                    <li>Refresh this page - your data will be restored!</li>
+                    <li>Open DevTools → Application → Local Storage to see the saved data</li>
+                    <li>Try different browsers or tabs - data persists across sessions</li>
+                </ol>
+                
+                <div class="feature-highlight">Real-time localStorage persistence with 300ms debouncing</div>
+                <div class="feature-highlight">SSR compatible with fallback storage</div>
+                <div class="feature-highlight">Full TypeScript support with generics</div>
+                <div class="feature-highlight">Zero dependencies, under 5kb bundle size</div>
+            </div>
+            
+            <div id="demo-app"></div>
+            
+            <div class="github-link">
+                <a href="https://github.com/SahilNalavade/use-form-persist" target="_blank">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/babel">
+        const { useState } = React;
+        const { useFormPersist } = UseFormPersist;
+
+        function DemoApp() {
+            const { values, setValue, setValues, clearPersistedData, isHydrated } = useFormPersist(
+                'demo-form', 
+                {
+                    personalInfo: {
+                        firstName: '',
+                        lastName: '',
+                        email: '',
+                        phone: ''
+                    },
+                    preferences: {
+                        theme: 'light',
+                        notifications: true,
+                        newsletter: false
+                    },
+                    feedback: {
+                        rating: '5',
+                        message: '',
+                        category: 'general'
+                    }
+                },
+                {
+                    debounceMs: 300,
+                    onError: (error) => {
+                        console.error('Form persistence error:', error);
+                        alert('Storage error occurred. Check console for details.');
+                    }
+                }
+            );
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                alert('Form submitted successfully! Check console for values.');
+                console.log('Submitted form values:', values);
+            };
+
+            const fillSampleData = () => {
+                setValues({
+                    personalInfo: {
+                        firstName: 'John',
+                        lastName: 'Doe',
+                        email: 'john.doe@example.com',
+                        phone: '+1 (555) 123-4567'
+                    },
+                    preferences: {
+                        theme: 'dark',
+                        notifications: false,
+                        newsletter: true
+                    },
+                    feedback: {
+                        rating: '4',
+                        message: 'This React hook is amazing! It automatically saves my form data and restores it perfectly. Great for improving user experience.',
+                        category: 'feature'
+                    }
+                });
+            };
+
+            const resetForm = () => {
+                clearPersistedData();
+                alert('Form data cleared! Try refreshing the page.');
+            };
+
+            if (!isHydrated) {
+                return (
+                    <div className="status-indicator loading">
+                        ⏳ Loading persisted form data...
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <div className="status-indicator">
+                        ✅ Form data hydrated and ready! ({Object.keys(localStorage).filter(k => k.includes('demo-form')).length} items in localStorage)
+                    </div>
+
+                    <div className="demo-grid">
+                        <div className="form-section">
+                            <h3>📝 Interactive Form</h3>
+                            <form onSubmit={handleSubmit}>
+                                <div className="form-group">
+                                    <label>First Name:</label>
+                                    <input
+                                        type="text"
+                                        value={values.personalInfo.firstName}
+                                        onChange={(e) => setValue('personalInfo', {
+                                            ...values.personalInfo,
+                                            firstName: e.target.value
+                                        })}
+                                        placeholder="Enter your first name"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Last Name:</label>
+                                    <input
+                                        type="text"
+                                        value={values.personalInfo.lastName}
+                                        onChange={(e) => setValue('personalInfo', {
+                                            ...values.personalInfo,
+                                            lastName: e.target.value
+                                        })}
+                                        placeholder="Enter your last name"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Email:</label>
+                                    <input
+                                        type="email"
+                                        value={values.personalInfo.email}
+                                        onChange={(e) => setValue('personalInfo', {
+                                            ...values.personalInfo,
+                                            email: e.target.value
+                                        })}
+                                        placeholder="your.email@example.com"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Phone:</label>
+                                    <input
+                                        type="tel"
+                                        value={values.personalInfo.phone}
+                                        onChange={(e) => setValue('personalInfo', {
+                                            ...values.personalInfo,
+                                            phone: e.target.value
+                                        })}
+                                        placeholder="+1 (555) 123-4567"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Theme Preference:</label>
+                                    <select
+                                        value={values.preferences.theme}
+                                        onChange={(e) => setValue('preferences', {
+                                            ...values.preferences,
+                                            theme: e.target.value
+                                        })}
+                                    >
+                                        <option value="light">Light Theme</option>
+                                        <option value="dark">Dark Theme</option>
+                                        <option value="auto">Auto (System)</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <div className="checkbox-group">
+                                        <input
+                                            type="checkbox"
+                                            id="notifications"
+                                            checked={values.preferences.notifications}
+                                            onChange={(e) => setValue('preferences', {
+                                                ...values.preferences,
+                                                notifications: e.target.checked
+                                            })}
+                                        />
+                                        <label htmlFor="notifications">Enable notifications</label>
+                                    </div>
+                                </div>
+
+                                <div className="form-group">
+                                    <div className="checkbox-group">
+                                        <input
+                                            type="checkbox"
+                                            id="newsletter"
+                                            checked={values.preferences.newsletter}
+                                            onChange={(e) => setValue('preferences', {
+                                                ...values.preferences,
+                                                newsletter: e.target.checked
+                                            })}
+                                        />
+                                        <label htmlFor="newsletter">Subscribe to newsletter</label>
+                                    </div>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Feedback Category:</label>
+                                    <select
+                                        value={values.feedback.category}
+                                        onChange={(e) => setValue('feedback', {
+                                            ...values.feedback,
+                                            category: e.target.value
+                                        })}
+                                    >
+                                        <option value="general">General Feedback</option>
+                                        <option value="feature">Feature Request</option>
+                                        <option value="bug">Bug Report</option>
+                                        <option value="support">Support</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Rating (1-5):</label>
+                                    <select
+                                        value={values.feedback.rating}
+                                        onChange={(e) => setValue('feedback', {
+                                            ...values.feedback,
+                                            rating: e.target.value
+                                        })}
+                                    >
+                                        <option value="1">1 - Poor</option>
+                                        <option value="2">2 - Fair</option>
+                                        <option value="3">3 - Good</option>
+                                        <option value="4">4 - Very Good</option>
+                                        <option value="5">5 - Excellent</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Your Message:</label>
+                                    <textarea
+                                        value={values.feedback.message}
+                                        onChange={(e) => setValue('feedback', {
+                                            ...values.feedback,
+                                            message: e.target.value
+                                        })}
+                                        placeholder="Tell us what you think about use-form-persist..."
+                                        rows="4"
+                                    />
+                                </div>
+
+                                <div className="button-group">
+                                    <button type="submit" className="btn-primary">
+                                        Submit Form
+                                    </button>
+                                    <button type="button" className="btn-success" onClick={fillSampleData}>
+                                        Fill Sample Data
+                                    </button>
+                                    <button type="button" className="btn-secondary" onClick={resetForm}>
+                                        Clear All Data
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div className="debug-section">
+                            <h3>🔍 Live State Debug</h3>
+                            <p><strong>Hydration Status:</strong> {isHydrated ? '✅ Hydrated' : '⏳ Loading'}</p>
+                            <p><strong>localStorage Key:</strong> demo-form</p>
+                            <p><strong>Auto-save:</strong> ✅ Every 300ms after changes</p>
+                            <p><strong>Current Form Values:</strong></p>
+                            <pre>{JSON.stringify(values, null, 2)}</pre>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('demo-app'));
+        root.render(<DemoApp />);
+    </script>
+</body>
+</html>

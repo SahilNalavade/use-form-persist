@@ -7,6 +7,10 @@ A lightweight, type-safe React hook for automatically persisting and restoring f
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/use-form-persist)](https://bundlephobia.com/package/use-form-persist)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## 🚀 [Live Demo](https://sahilnalavade.github.io/use-form-persist/demo.html)
+
+Try the interactive demo to see `use-form-persist` in action! Fill out the form, refresh the page, and watch your data persist automatically.
+
 ## Features
 
 - 🔄 **Automatic persistence** - Form state is automatically saved to localStorage on every change
