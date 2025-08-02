@@ -53,8 +53,11 @@ export default [
       resolve({
         browser: true,
         preferBuiltins: false,
+        external: ['react', 'react-dom'],
       }),
-      commonjs(),
+      commonjs({
+        exclude: ['react', 'react-dom'],
+      }),
       typescript({
         tsconfig: './tsconfig.build.json',
         exclude: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>use-form-persist Edge Case Tests</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .test-section h3 { margin-top: 0; color: #333; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .warning { background: #fff3cd; border-color: #ffeeba; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 8px 16px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+        input, textarea { width: 100%; padding: 8px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>🧪 use-form-persist Edge Case Tests</h1>
+    <p>Testing various scenarios to ensure robustness</p>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Inline the hook code for testing
+        function useFormPersist(storageKey, defaultValues, options = {}) {
+            const { debounceMs = 300, exclude = [], onError, enabled = true } = options;
+            
+            const [values, setValues] = React.useState(defaultValues);
+            const [isHydrated, setIsHydrated] = React.useState(false);
+            const [errors, setErrors] = React.useState([]);
+            
+            const addError = (error) => {
+                setErrors(prev => [...prev, error.message]);
+                if (onError) onError(error);
+            };
+            
+            // Create storage adapter
+            const storageAdapter = React.useMemo(() => {
+                const isClient = typeof window !== 'undefined';
+                const hasLocalStorage = isClient && 'localStorage' in window;
+                const fallbackStorage = new Map();
+                
+                return {
+                    getItem: (key) => {
+                        if (!hasLocalStorage) return fallbackStorage.get(key) ?? null;
+                        try {
+                            return localStorage.getItem(key);
+                        } catch (error) {
+                            addError(error);
+                            return fallbackStorage.get(key) ?? null;
+                        }
+                    },
+                    setItem: (key, value) => {
+                        if (!hasLocalStorage) {
+                            fallbackStorage.set(key, value);
+                            return;
+                        }
+                        try {
+                            localStorage.setItem(key, value);
+                        } catch (error) {
+                            addError(error);
+                            fallbackStorage.set(key, value);
+                        }
+                    },
+                    removeItem: (key) => {
+                        if (!hasLocalStorage) {
+                            fallbackStorage.delete(key);
+                            return;
+                        }
+                        try {
+                            localStorage.removeItem(key);
+                        } catch (error) {
+                            addError(error);
+                            fallbackStorage.delete(key);
+                        }
+                    }
+                };
+            }, []);
+            
+            // Debounced save function
+            const debouncedSave = React.useCallback(
+                debounce((data) => {
+                    if (!enabled) return;
+                    try {
+                        const serialized = JSON.stringify(data);
+                        storageAdapter.setItem(storageKey, serialized);
+                    } catch (error) {
+                        addError(error);
+                    }
+                }, debounceMs),
+                [storageKey, debounceMs, enabled, storageAdapter]
+            );
+            
+            // Load from storage
+            const loadFromStorage = React.useCallback(() => {
+                if (!enabled) return defaultValues;
+                try {
+                    const stored = storageAdapter.getItem(storageKey);
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        return { ...defaultValues, ...parsed };
+                    }
+                } catch (error) {
+                    addError(error);
+                }
+                return defaultValues;
+            }, [storageKey, defaultValues, enabled, storageAdapter]);
+            
+            // Initialize
+            React.useEffect(() => {
+                const savedValues = loadFromStorage();
+                setValues(savedValues);
+                setIsHydrated(true);
+            }, [loadFromStorage]);
+            
+            // Save when values change
+            React.useEffect(() => {
+                if (isHydrated && enabled) {
+                    debouncedSave(values);
+                }
+            }, [values, debouncedSave, isHydrated, enabled]);
+            
+            const setValue = React.useCallback((key, value) => {
+                setValues(prev => ({ ...prev, [key]: value }));
+            }, []);
+            
+            const setMultipleValues = React.useCallback((newValues) => {
+                setValues(prev => ({ ...prev, ...newValues }));
+            }, []);
+            
+            const clearPersistedData = React.useCallback(() => {
+                try {
+                    storageAdapter.removeItem(storageKey);
+                    setValues({ ...defaultValues });
+                } catch (error) {
+                    addError(error);
+                }
+            }, [storageKey, defaultValues, storageAdapter]);
+            
+            return {
+                values,
+                setValue,
+                setValues: setMultipleValues,
+                clearPersistedData,
+                isHydrated,
+                errors
+            };
+        }
+        
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function EdgeCaseTests() {
+            const [testResults, setTestResults] = React.useState({});
+            const [currentTest, setCurrentTest] = React.useState(null);
+            
+            // Test 1: Normal operation
+            const normalTest = useFormPersist('normal-test', { name: '', email: '' });
+            
+            // Test 2: Large data
+            const largeTest = useFormPersist('large-test', { 
+                data: '',
+                largeArray: new Array(1000).fill(0).map((_, i) => ({ id: i, value: `item-${i}` }))
+            });
+            
+            // Test 3: Complex nested objects
+            const complexTest = useFormPersist('complex-test', {
+                user: {
+                    profile: {
+                        personal: { name: '', age: 0 },
+                        preferences: { theme: 'light', settings: { notifications: true } }
+                    }
+                },
+                metadata: { created: new Date().toISOString(), version: 1 }
+            });
+            
+            // Test 4: Error handling
+            const errorTest = useFormPersist('error-test', { data: '' }, {
+                onError: (error) => {
+                    setTestResults(prev => ({
+                        ...prev,
+                        errorHandling: `Error caught: ${error.message}`
+                    }));
+                }
+            });
+            
+            // Test 5: Disabled state
+            const [enabled, setEnabled] = React.useState(true);
+            const disabledTest = useFormPersist('disabled-test', { value: '' }, { enabled });
+            
+            const runTest = (testName, testFn) => {
+                setCurrentTest(testName);
+                try {
+                    const result = testFn();
+                    setTestResults(prev => ({
+                        ...prev,
+                        [testName]: result
+                    }));
+                } catch (error) {
+                    setTestResults(prev => ({
+                        ...prev,
+                        [testName]: `Error: ${error.message}`
+                    }));
+                }
+                setTimeout(() => setCurrentTest(null), 1000);
+            };
+            
+            const simulateStorageQuotaError = () => {
+                const originalSetItem = Storage.prototype.setItem;
+                Storage.prototype.setItem = function() {
+                    throw new DOMException('QuotaExceededError', 'QuotaExceededError');
+                };
+                
+                // Try to save something
+                errorTest.setValue('data', 'This should trigger quota error');
+                
+                // Restore original
+                setTimeout(() => {
+                    Storage.prototype.setItem = originalSetItem;
+                }, 1000);
+            };
+            
+            const testCircularReference = () => {
+                try {
+                    const circular = { prop: null };
+                    circular.prop = circular;
+                    complexTest.setValue('circular', circular);
+                    return 'Should have failed with circular reference';
+                } catch (error) {
+                    return `Correctly handled circular reference: ${error.message}`;
+                }
+            };
+            
+            const testInvalidJSON = () => {
+                try {
+                    localStorage.setItem('invalid-json-test', '{invalid json}');
+                    const invalidTest = useFormPersist('invalid-json-test', { data: 'default' });
+                    return `Handled invalid JSON gracefully, loaded: ${JSON.stringify(invalidTest.values)}`;
+                } catch (error) {
+                    return `Error handling invalid JSON: ${error.message}`;
+                }
+            };
+            
+            return (
+                <div>
+                    <div className="test-section success">
+                        <h3>✅ Test 1: Normal Operation</h3>
+                        <input 
+                            value={normalTest.values.name}
+                            onChange={(e) => normalTest.setValue('name', e.target.value)}
+                            placeholder="Name"
+                        />
+                        <input 
+                            value={normalTest.values.email}
+                            onChange={(e) => normalTest.setValue('email', e.target.value)}
+                            placeholder="Email"
+                        />
+                        <button className="btn-danger" onClick={normalTest.clearPersistedData}>
+                            Clear
+                        </button>
+                        <pre>Values: {JSON.stringify(normalTest.values, null, 2)}</pre>
+                        <p>Status: {normalTest.isHydrated ? '✅ Hydrated' : '⏳ Loading'}</p>
+                    </div>
+
+                    <div className="test-section warning">
+                        <h3>⚠️ Test 2: Large Data Performance</h3>
+                        <textarea 
+                            value={largeTest.values.data}
+                            onChange={(e) => largeTest.setValue('data', e.target.value)}
+                            placeholder="Type large amounts of text..."
+                        />
+                        <p>Array items: {largeTest.values.largeArray.length}</p>
+                        <button className="btn-primary" onClick={() => {
+                            largeTest.setValue('largeArray', 
+                                new Array(2000).fill(0).map((_, i) => ({ id: i, value: `large-${i}` }))
+                            );
+                        }}>
+                            Add More Items (2000)
+                        </button>
+                    </div>
+
+                    <div className="test-section">
+                        <h3>🏗️ Test 3: Complex Nested Objects</h3>
+                        <input 
+                            value={complexTest.values.user.profile.personal.name}
+                            onChange={(e) => complexTest.setValue('user', {
+                                ...complexTest.values.user,
+                                profile: {
+                                    ...complexTest.values.user.profile,
+                                    personal: {
+                                        ...complexTest.values.user.profile.personal,
+                                        name: e.target.value
+                                    }
+                                }
+                            })}
+                            placeholder="Deep nested name"
+                        />
+                        <pre>Complex object: {JSON.stringify(complexTest.values, null, 2).slice(0, 500)}...</pre>
+                    </div>
+
+                    <div className="test-section error">
+                        <h3>🚨 Test 4: Error Handling</h3>
+                        <button className="btn-danger" onClick={simulateStorageQuotaError}>
+                            Simulate Quota Exceeded Error
+                        </button>
+                        <button className="btn-warning" onClick={() => runTest('circularRef', testCircularReference)}>
+                            Test Circular Reference
+                        </button>
+                        <button className="btn-warning" onClick={() => runTest('invalidJSON', testInvalidJSON)}>
+                            Test Invalid JSON
+                        </button>
+                        {errorTest.errors.length > 0 && (
+                            <div>
+                                <h4>Errors caught:</h4>
+                                <pre>{errorTest.errors.join('\n')}</pre>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="test-section">
+                        <h3>🔄 Test 5: Enable/Disable Functionality</h3>
+                        <label>
+                            <input 
+                                type="checkbox" 
+                                checked={enabled}
+                                onChange={(e) => setEnabled(e.target.checked)}
+                            />
+                            Persistence enabled
+                        </label>
+                        <input 
+                            value={disabledTest.values.value}
+                            onChange={(e) => disabledTest.setValue('value', e.target.value)}
+                            placeholder="This won't persist when disabled"
+                        />
+                        <p>Current state: {enabled ? '🟢 Enabled' : '🔴 Disabled'}</p>
+                    </div>
+
+                    <div className="test-section">
+                        <h3>📊 Test Results</h3>
+                        {currentTest && <p>Running test: {currentTest}...</p>}
+                        <pre>{JSON.stringify(testResults, null, 2)}</pre>
+                    </div>
+
+                    <div className="test-section success">
+                        <h3>🎯 Manual Tests to Perform</h3>
+                        <ol>
+                            <li>Fill out forms above</li>
+                            <li>Refresh the page → Data should persist</li>
+                            <li>Open DevTools → Application → Local Storage</li>
+                            <li>See the stored data</li>
+                            <li>Try the error simulation buttons</li>
+                            <li>Toggle enable/disable</li>
+                        </ol>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<EdgeCaseTests />);
+    </script>
+</body>
+</html>
