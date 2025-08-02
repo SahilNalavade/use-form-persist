@@ -1,0 +1,29 @@
+# Source files
+src/
+tests/
+examples/
+docs/
+
+# Configuration files
+.eslintrc.js
+.prettierrc
+tsconfig.json
+tsconfig.build.json
+rollup.config.js
+jest.config.js
+
+# Development files
+.git/
+.gitignore
+.github/
+*.log
+coverage/
+.nyc_output/
+
+# OS and IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
