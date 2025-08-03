@@ -61,13 +61,29 @@
             margin-bottom: 40px;
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .demo-grid {
                 grid-template-columns: 1fr;
                 gap: 40px;
             }
+        }
+        
+        @media (max-width: 768px) {
             .demo-content {
                 padding: 30px 20px;
+            }
+            .demo-grid {
+                gap: 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .demo-content {
+                padding: 20px 15px;
+            }
+            .form-section,
+            .debug-section {
+                padding: 20px;
             }
         }
         
@@ -189,10 +205,22 @@
             color: #374151;
             padding: 20px;
             border-radius: 6px;
-            overflow-x: auto;
-            font-size: 13px;
-            line-height: 1.5;
+            overflow: auto;
+            font-size: 12px;
+            line-height: 1.4;
             border: 1px solid #e5e7eb;
+            max-height: 300px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+        
+        @media (max-width: 768px) {
+            .debug-section pre {
+                font-size: 11px;
+                padding: 15px;
+                max-height: 250px;
+            }
         }
         
         .status-indicator {
@@ -478,6 +506,9 @@
                             <p><strong>Auto-save:</strong> 300ms debounced</p>
                             <p><strong>Current Values:</strong></p>
                             <pre>{JSON.stringify(values, null, 2)}</pre>
+                            <p style={{fontSize: '12px', color: '#6b7280', marginTop: '10px'}}>
+                                💡 Try refreshing the page to see persistence in action!
+                            </p>
                         </div>
                     </div>
                 </div>
