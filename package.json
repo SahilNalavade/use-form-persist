@@ -1,6 +1,6 @@
 {
   "name": "use-form-persist",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A React hook for automatically persisting and restoring form state to/from localStorage",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -51,7 +51,7 @@
   "bugs": {
     "url": "https://github.com/sahilnalavade/use-form-persist/issues"
   },
-  "homepage": "https://github.com/sahilnalavade/use-form-persist#readme",
+  "homepage": "https://sahilnalavade.github.io/use-form-persist/demo.html",
   "peerDependencies": {
     "react": ">=16.8.0"
   },
