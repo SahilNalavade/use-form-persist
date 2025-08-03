@@ -212,6 +212,44 @@
             box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
         }
         
+        /* Range slider styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #2563eb;
+            transform: scale(1.1);
+        }
+        
+        body.dark input[type="range"] {
+            background: #4b5563;
+        }
+        
+        body.dark input[type="range"]::-webkit-slider-thumb {
+            background: #60a5fa;
+        }
+        
+        body.dark input[type="range"]::-webkit-slider-thumb:hover {
+            background: #3b82f6;
+        }
+        
         .checkbox-group {
             display: flex;
             align-items: center;
@@ -461,19 +499,22 @@
         
         <div class="demo-content">
             <div class="instructions">
-                <h3>Try It Out</h3>
+                <h3>Interactive Demo Features</h3>
                 <ol>
-                    <li>Fill out the form below</li>
-                    <li>Refresh this page - your data will be restored automatically</li>
-                    <li>Open DevTools → Application → Local Storage to see the saved data</li>
-                    <li>Try different browsers or tabs - data persists across sessions</li>
+                    <li><strong>Dynamic Theme Switching:</strong> Toggle between light/dark mode and watch the entire page transform!</li>
+                    <li><strong>Live Debounce Control:</strong> Adjust the debounce slider and see how it affects save timing</li>
+                    <li><strong>Real-time Save Indicator:</strong> Watch the "Saving..." indicator as you type</li>
+                    <li><strong>Field Exclusion:</strong> Exclude fields from persistence and see them disappear from saved data</li>
+                    <li><strong>Persistence Toggle:</strong> Turn persistence on/off and see the difference</li>
+                    <li><strong>Live State Monitoring:</strong> View all hook options and current state in real-time</li>
+                    <li><strong>Refresh Test:</strong> Refresh the page to see everything perfectly restored!</li>
                 </ol>
                 
                 <div class="feature-list">
-                    <div class="feature-item">Real-time localStorage persistence</div>
-                    <div class="feature-item">300ms debounced auto-save</div>
-                    <div class="feature-item">SSR compatible fallback</div>
-                    <div class="feature-item">Zero dependencies</div>
+                    <div class="feature-item">Dynamic configuration controls</div>
+                    <div class="feature-item">Live save activity indicators</div>
+                    <div class="feature-item">Real-time theme switching</div>
+                    <div class="feature-item">Field exclusion demonstration</div>
                 </div>
             </div>
             
@@ -495,6 +536,14 @@
         const { useFormPersist } = UseFormPersist;
 
         function DemoApp() {
+            const [hookOptions, setHookOptions] = React.useState({
+                debounceMs: 300,
+                enabled: true,
+                exclude: []
+            });
+            const [lastSaveTime, setLastSaveTime] = React.useState(null);
+            const [isSaving, setIsSaving] = React.useState(false);
+
             const { values, setValue, setValues, clearPersistedData, isHydrated } = useFormPersist(
                 'demo-form', 
                 {
@@ -507,9 +556,12 @@
                     }
                 },
                 {
-                    debounceMs: 300,
+                    debounceMs: hookOptions.debounceMs,
+                    enabled: hookOptions.enabled,
+                    exclude: hookOptions.exclude,
                     onError: (error) => {
                         console.error('Form persistence error:', error);
+                        setIsSaving(false);
                     }
                 }
             );
@@ -523,6 +575,20 @@
                     body.classList.remove('dark');
                 }
             }, [values.preferences.theme]);
+
+            // Track form changes and show save activity
+            React.useEffect(() => {
+                if (isHydrated && hookOptions.enabled) {
+                    setIsSaving(true);
+                    setLastSaveTime(new Date().toLocaleTimeString());
+                    
+                    const timer = setTimeout(() => {
+                        setIsSaving(false);
+                    }, hookOptions.debounceMs + 100);
+                    
+                    return () => clearTimeout(timer);
+                }
+            }, [values, isHydrated, hookOptions.enabled, hookOptions.debounceMs]);
 
             const handleSubmit = (e) => {
                 e.preventDefault();
@@ -585,7 +651,7 @@
                                 </div>
 
                                 <div className="form-group">
-                                    <label>Theme Preference {values.preferences.theme === 'dark' ? '🌙' : '☀️'}</label>
+                                    <label>Theme Preference</label>
                                     <select
                                         value={values.preferences.theme}
                                         onChange={(e) => setValue('preferences', {
@@ -597,9 +663,9 @@
                                             color: values.preferences.theme === 'dark' ? '#f9fafb' : '#1f2937'
                                         }}
                                     >
-                                        <option value="light">☀️ Light Theme</option>
-                                        <option value="dark">🌙 Dark Theme</option>
-                                        <option value="auto">🔄 Auto (System)</option>
+                                        <option value="light">Light Theme</option>
+                                        <option value="dark">Dark Theme</option>
+                                        <option value="auto">Auto (System)</option>
                                     </select>
                                 </div>
 
@@ -615,6 +681,83 @@
                                             })}
                                         />
                                         <label htmlFor="notifications">Enable notifications</label>
+                                    </div>
+                                </div>
+
+                                <hr style={{margin: '30px 0', border: 'none', borderTop: '1px solid #e2e8f0'}} />
+                                
+                                <h4 style={{marginBottom: '20px', color: values.preferences.theme === 'dark' ? '#f1f5f9' : '#2c3e50'}}>
+                                    Hook Configuration (Live Demo)
+                                </h4>
+
+                                <div className="form-group">
+                                    <label>Debounce Delay: {hookOptions.debounceMs}ms</label>
+                                    <input
+                                        type="range"
+                                        min="100"
+                                        max="2000"
+                                        step="100"
+                                        value={hookOptions.debounceMs}
+                                        onChange={(e) => setHookOptions(prev => ({
+                                            ...prev,
+                                            debounceMs: parseInt(e.target.value)
+                                        }))}
+                                        style={{width: '100%'}}
+                                    />
+                                    <div style={{fontSize: '12px', color: '#6b7280', marginTop: '5px'}}>
+                                        Controls how long to wait before saving changes
+                                    </div>
+                                </div>
+
+                                <div className="form-group">
+                                    <div className="checkbox-group">
+                                        <input
+                                            type="checkbox"
+                                            id="persistence-enabled"
+                                            checked={hookOptions.enabled}
+                                            onChange={(e) => setHookOptions(prev => ({
+                                                ...prev,
+                                                enabled: e.target.checked
+                                            }))}
+                                        />
+                                        <label htmlFor="persistence-enabled">Enable Persistence</label>
+                                    </div>
+                                    <div style={{fontSize: '12px', color: '#6b7280', marginTop: '5px'}}>
+                                        Toggle automatic saving on/off
+                                    </div>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Exclude Fields from Persistence</label>
+                                    <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+                                        {['email', 'message', 'preferences.notifications'].map(field => (
+                                            <div key={field} className="checkbox-group">
+                                                <input
+                                                    type="checkbox"
+                                                    id={`exclude-${field}`}
+                                                    checked={hookOptions.exclude.includes(field)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setHookOptions(prev => ({
+                                                                ...prev,
+                                                                exclude: [...prev.exclude, field]
+                                                            }));
+                                                        } else {
+                                                            setHookOptions(prev => ({
+                                                                ...prev,
+                                                                exclude: prev.exclude.filter(f => f !== field)
+                                                            }));
+                                                        }
+                                                    }}
+                                                />
+                                                <label htmlFor={`exclude-${field}`} style={{fontSize: '13px'}}>
+                                                    Exclude "{field}"
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div style={{fontSize: '12px', color: '#6b7280', marginTop: '5px'}}>
+                                        Excluded fields won't be saved to localStorage
                                     </div>
                                 </div>
 
@@ -643,20 +786,54 @@
                         </div>
 
                         <div className="debug-section">
-                            <h3>Live State {values.preferences.theme === 'dark' ? '🌙' : '☀️'}</h3>
-                            <p><strong>Status:</strong> {isHydrated ? '✅ Hydrated' : '⏳ Loading'}</p>
+                            <h3>Live Hook State</h3>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                marginBottom: '15px',
+                                padding: '8px 12px',
+                                backgroundColor: isSaving ? '#fef3c7' : '#ecfdf5',
+                                border: `1px solid ${isSaving ? '#fde68a' : '#d1fae5'}`,
+                                borderRadius: '6px',
+                                transition: 'all 0.3s ease'
+                            }}>
+                                <div style={{
+                                    width: '8px',
+                                    height: '8px',
+                                    borderRadius: '50%',
+                                    backgroundColor: isSaving ? '#f59e0b' : '#10b981',
+                                    transition: 'all 0.3s ease'
+                                }}></div>
+                                <span style={{fontSize: '14px', fontWeight: '500'}}>
+                                    {isSaving ? 'Saving...' : 'Saved'}
+                                </span>
+                                {lastSaveTime && (
+                                    <span style={{fontSize: '12px', color: '#6b7280'}}>
+                                        Last: {lastSaveTime}
+                                    </span>
+                                )}
+                            </div>
+                            
+                            <p><strong>Hydration:</strong> {isHydrated ? 'Complete' : 'Loading...'}</p>
                             <p><strong>Storage Key:</strong> demo-form</p>
-                            <p><strong>Auto-save:</strong> 300ms debounced ⚡</p>
-                            <p><strong>Theme:</strong> {values.preferences.theme === 'dark' ? '🌙 Dark Mode Active!' : '☀️ Light Mode'}</p>
-                            <p><strong>Current Values:</strong></p>
-                            <pre>{JSON.stringify(values, null, 2)}</pre>
+                            <p><strong>Debounce Delay:</strong> {hookOptions.debounceMs}ms</p>
+                            <p><strong>Persistence:</strong> {hookOptions.enabled ? 'Enabled' : 'Disabled'}</p>
+                            <p><strong>Theme Mode:</strong> {values.preferences.theme === 'dark' ? 'Dark' : 'Light'}</p>
+                            <p><strong>Excluded Fields:</strong> {hookOptions.exclude.length ? hookOptions.exclude.join(', ') : 'None'}</p>
+                            
+                            <div style={{marginTop: '15px'}}>
+                                <strong>Current Form Data:</strong>
+                                <pre>{JSON.stringify(values, null, 2)}</pre>
+                            </div>
+                            
                             <p style={{
                                 fontSize: '12px', 
                                 color: values.preferences.theme === 'dark' ? '#94a3b8' : '#6b7280', 
-                                marginTop: '10px',
+                                marginTop: '15px',
                                 transition: 'color 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
                             }}>
-                                💡 Try switching themes and refreshing to see persistence!
+                                Try adjusting the debounce slider and watch the save timing change!
                             </p>
                         </div>
                     </div>
