@@ -378,12 +378,25 @@
             font-weight: 500;
             margin-bottom: 20px;
             border: 1px solid #d1fae5;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .status-indicator.loading {
             background: #fef3c7;
             color: #92400e;
             border-color: #fde68a;
+        }
+        
+        body.dark .status-indicator {
+            background: #064e3b;
+            color: #a7f3d0;
+            border-color: #059669;
+        }
+        
+        body.dark .status-indicator.loading {
+            background: #451a03;
+            color: #fcd34d;
+            border-color: #78350f;
         }
         
         .instructions {
@@ -705,8 +718,12 @@
                                 gap: '10px',
                                 marginBottom: '15px',
                                 padding: '8px 12px',
-                                backgroundColor: isSaving ? '#fef3c7' : '#ecfdf5',
-                                border: `1px solid ${isSaving ? '#fde68a' : '#d1fae5'}`,
+                                backgroundColor: isSaving 
+                                    ? (values.preferences.theme === 'dark' ? '#451a03' : '#fef3c7')
+                                    : (values.preferences.theme === 'dark' ? '#064e3b' : '#ecfdf5'),
+                                border: `1px solid ${isSaving 
+                                    ? (values.preferences.theme === 'dark' ? '#78350f' : '#fde68a')
+                                    : (values.preferences.theme === 'dark' ? '#059669' : '#d1fae5')}`,
                                 borderRadius: '6px',
                                 transition: 'all 0.3s ease'
                             }}>
@@ -717,11 +734,18 @@
                                     backgroundColor: isSaving ? '#f59e0b' : '#10b981',
                                     transition: 'all 0.3s ease'
                                 }}></div>
-                                <span style={{fontSize: '14px', fontWeight: '500'}}>
+                                <span style={{
+                                    fontSize: '14px', 
+                                    fontWeight: '500',
+                                    color: values.preferences.theme === 'dark' ? '#f9fafb' : '#1f2937'
+                                }}>
                                     {isSaving ? 'Saving...' : 'Saved'}
                                 </span>
                                 {lastSaveTime && (
-                                    <span style={{fontSize: '12px', color: '#6b7280'}}>
+                                    <span style={{
+                                        fontSize: '12px', 
+                                        color: values.preferences.theme === 'dark' ? '#9ca3af' : '#6b7280'
+                                    }}>
                                         Last: {lastSaveTime}
                                     </span>
                                 )}
