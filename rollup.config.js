@@ -13,13 +13,13 @@ export default [
       {
         file: packageJson.main,
         format: 'cjs',
-        sourcemap: true,
+        sourcemap: false,
         exports: 'named',
       },
       {
         file: packageJson.module,
         format: 'esm',
-        sourcemap: true,
+        sourcemap: false,
       },
     ],
     plugins: [
@@ -42,7 +42,7 @@ export default [
       file: 'dist/index.umd.js',
       format: 'umd',
       name: 'UseFormPersist',
-      sourcemap: true,
+      sourcemap: false,
       globals: {
         react: 'React',
         'react-dom': 'ReactDOM',
