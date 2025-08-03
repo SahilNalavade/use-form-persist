@@ -1,5 +1,7 @@
 # use-form-persist
 
+> Automatic form persistence with localStorage • Zero dependencies • Full TypeScript support • SSR compatible
+
 A lightweight, type-safe React hook for automatically persisting and restoring form state to/from localStorage with zero dependencies.
 
 [![npm version](https://badge.fury.io/js/use-form-persist.svg)](https://badge.fury.io/js/use-form-persist)
@@ -9,7 +11,14 @@ A lightweight, type-safe React hook for automatically persisting and restoring f
 
 ## 🚀 [Live Demo](https://sahilnalavade.github.io/use-form-persist/demo.html)
 
-Try the interactive demo to see `use-form-persist` in action! Fill out the form, refresh the page, and watch your data persist automatically.
+Try the interactive demo! Features dynamic theme switching, live debounce control, and real-time persistence monitoring. Fill out the form, refresh the page, and watch your data persist automatically.
+
+## Why use-form-persist?
+
+- ✅ **Zero setup** - Works out of the box with any React form
+- ✅ **Type-safe** - Full TypeScript support with generics  
+- ✅ **Production ready** - Handles edge cases, SSR, storage errors
+- ✅ **Tiny footprint** - <5kb, zero dependencies
 
 ## Features
 
