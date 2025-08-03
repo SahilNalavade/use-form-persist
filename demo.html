@@ -527,8 +527,7 @@
 
         function DemoApp() {
             const [hookOptions, setHookOptions] = React.useState({
-                debounceMs: 300,
-                enabled: true
+                debounceMs: 300
             });
             const [lastSaveTime, setLastSaveTime] = React.useState(null);
             const [isSaving, setIsSaving] = React.useState(false);
@@ -546,7 +545,6 @@
                 },
                 {
                     debounceMs: hookOptions.debounceMs,
-                    enabled: hookOptions.enabled,
                     onError: (error) => {
                         console.error('Form persistence error:', error);
                         setIsSaving(false);
@@ -566,7 +564,7 @@
 
             // Track form changes and show save activity
             React.useEffect(() => {
-                if (isHydrated && hookOptions.enabled) {
+                if (isHydrated) {
                     setIsSaving(true);
                     setLastSaveTime(new Date().toLocaleTimeString());
                     
@@ -576,7 +574,7 @@
                     
                     return () => clearTimeout(timer);
                 }
-            }, [values, isHydrated, hookOptions.enabled, hookOptions.debounceMs]);
+            }, [values, isHydrated, hookOptions.debounceMs]);
 
             const handleSubmit = (e) => {
                 e.preventDefault();
@@ -672,48 +670,7 @@
                                     </div>
                                 </div>
 
-                                <hr style={{margin: '30px 0', border: 'none', borderTop: '1px solid #e2e8f0'}} />
-                                
-                                <h4 style={{marginBottom: '20px', color: values.preferences.theme === 'dark' ? '#f1f5f9' : '#2c3e50'}}>
-                                    Demo Controls
-                                </h4>
 
-                                <div className="form-group">
-                                    <label>Debounce Delay: {hookOptions.debounceMs}ms</label>
-                                    <input
-                                        type="range"
-                                        min="100"
-                                        max="2000"
-                                        step="100"
-                                        value={hookOptions.debounceMs}
-                                        onChange={(e) => setHookOptions(prev => ({
-                                            ...prev,
-                                            debounceMs: parseInt(e.target.value)
-                                        }))}
-                                        style={{width: '100%'}}
-                                    />
-                                    <div style={{fontSize: '12px', color: '#6b7280', marginTop: '5px'}}>
-                                        Controls how long to wait before saving changes
-                                    </div>
-                                </div>
-
-                                <div className="form-group">
-                                    <div className="checkbox-group">
-                                        <input
-                                            type="checkbox"
-                                            id="persistence-enabled"
-                                            checked={hookOptions.enabled}
-                                            onChange={(e) => setHookOptions(prev => ({
-                                                ...prev,
-                                                enabled: e.target.checked
-                                            }))}
-                                        />
-                                        <label htmlFor="persistence-enabled">Enable Persistence</label>
-                                    </div>
-                                    <div style={{fontSize: '12px', color: '#6b7280', marginTop: '5px'}}>
-                                        Toggle automatic saving on/off
-                                    </div>
-                                </div>
 
 
                                 <div className="form-group">
@@ -771,9 +728,38 @@
                             </div>
                             
                             <p><strong>Status:</strong> {isHydrated ? 'Ready' : 'Loading...'}</p>
-                            <p><strong>Debounce:</strong> {hookOptions.debounceMs}ms</p>
-                            <p><strong>Persistence:</strong> {hookOptions.enabled ? 'Enabled' : 'Disabled'}</p>
                             <p><strong>Theme:</strong> {values.preferences.theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</p>
+                            
+                            <div style={{marginTop: '15px', marginBottom: '15px'}}>
+                                <label style={{
+                                    display: 'block', 
+                                    marginBottom: '8px', 
+                                    fontSize: '13px', 
+                                    fontWeight: '500',
+                                    color: values.preferences.theme === 'dark' ? '#cbd5e1' : '#34495e'
+                                }}>
+                                    Debounce Delay: {hookOptions.debounceMs}ms
+                                </label>
+                                <input
+                                    type="range"
+                                    min="100"
+                                    max="2000"
+                                    step="100"
+                                    value={hookOptions.debounceMs}
+                                    onChange={(e) => setHookOptions(prev => ({
+                                        ...prev,
+                                        debounceMs: parseInt(e.target.value)
+                                    }))}
+                                    style={{width: '100%'}}
+                                />
+                                <div style={{
+                                    fontSize: '11px', 
+                                    color: values.preferences.theme === 'dark' ? '#9ca3af' : '#6b7280', 
+                                    marginTop: '4px'
+                                }}>
+                                    Adjust save timing and watch the indicator change
+                                </div>
+                            </div>
                             
                             <div style={{marginTop: '15px'}}>
                                 <strong>Current Form Data:</strong>
