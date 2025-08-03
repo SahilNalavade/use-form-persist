@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>use-form-persist - Live Demo</title>
+    <title>use-form-persist - Interactive Demo & Documentation</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -22,18 +22,55 @@
             background: white;
             min-height: 100vh;
             padding: 20px;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        body.dark {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        
+        /* Cool transition effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        body.dark::before {
+            opacity: 1;
+            background: radial-gradient(circle at center, rgba(96, 165, 250, 0.15) 0%, transparent 70%);
         }
         
         .container {
             max-width: 900px;
             margin: 0 auto;
             background: white;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .container {
+            background: #0f172a;
         }
         
         .header {
             text-align: center;
             padding: 40px 0 30px 0;
             border-bottom: 1px solid #e8ecef;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .header {
+            border-bottom: 1px solid #374151;
         }
         
         .header h1 {
@@ -42,12 +79,22 @@
             font-weight: 300;
             color: #2c3e50;
             letter-spacing: -1px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .header h1 {
+            color: #f1f5f9;
         }
         
         .header p {
             font-size: 1.1rem;
             color: #7f8c8d;
             font-weight: 300;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .header p {
+            color: #94a3b8;
         }
         
         .demo-content {
@@ -92,6 +139,12 @@
             padding: 30px;
             border-radius: 8px;
             border: 1px solid #e1e8ed;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .form-section {
+            background: #1e293b;
+            border: 1px solid #374151;
         }
         
         .form-section h3 {
@@ -99,6 +152,11 @@
             margin-bottom: 25px;
             font-size: 1.4rem;
             font-weight: 400;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .form-section h3 {
+            color: #f1f5f9;
         }
         
         .form-group {
@@ -111,6 +169,11 @@
             font-weight: 500;
             color: #34495e;
             font-size: 14px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .form-group label {
+            color: #cbd5e1;
         }
         
         .form-group input,
@@ -121,8 +184,17 @@
             border: 1px solid #d1d5db;
             border-radius: 6px;
             font-size: 14px;
-            transition: all 0.2s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             background: white;
+            color: #1f2937;
+        }
+        
+        body.dark .form-group input,
+        body.dark .form-group textarea,
+        body.dark .form-group select {
+            background: #374151;
+            border: 1px solid #4b5563;
+            color: #f9fafb;
         }
         
         .form-group input:focus,
@@ -131,6 +203,13 @@
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        body.dark .form-group input:focus,
+        body.dark .form-group textarea:focus,
+        body.dark .form-group select:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
         }
         
         .checkbox-group {
@@ -156,7 +235,7 @@
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .btn-primary {
@@ -191,6 +270,12 @@
             padding: 30px;
             border-radius: 8px;
             border: 1px solid #e1e8ed;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .debug-section {
+            background: #1e293b;
+            border: 1px solid #374151;
         }
         
         .debug-section h3 {
@@ -198,6 +283,11 @@
             margin-bottom: 20px;
             font-size: 1.4rem;
             font-weight: 400;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .debug-section h3 {
+            color: #f1f5f9;
         }
         
         .debug-section pre {
@@ -213,6 +303,21 @@
             white-space: pre-wrap;
             word-wrap: break-word;
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .debug-section pre {
+            background: #0f172a;
+            color: #cbd5e1;
+            border: 1px solid #4b5563;
+        }
+        
+        .debug-section p {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .debug-section p {
+            color: #cbd5e1;
         }
         
         @media (max-width: 768px) {
@@ -249,12 +354,23 @@
             border-radius: 8px;
             margin-bottom: 40px;
             border: 1px solid #e2e8f0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .instructions {
+            background: #1e293b;
+            border: 1px solid #374151;
         }
         
         .instructions h3 {
             color: #1e293b;
             margin-bottom: 16px;
             font-weight: 500;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .instructions h3 {
+            color: #f1f5f9;
         }
         
         .instructions ol {
@@ -264,6 +380,11 @@
         .instructions li {
             margin-bottom: 8px;
             color: #475569;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.dark .instructions li {
+            color: #cbd5e1;
         }
         
         .feature-list {
@@ -281,6 +402,14 @@
             background: white;
             border-radius: 6px;
             border: 1px solid #e2e8f0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #1f2937;
+        }
+        
+        body.dark .feature-item {
+            background: #374151;
+            border: 1px solid #4b5563;
+            color: #f9fafb;
         }
         
         .feature-item::before {
@@ -327,7 +456,7 @@
     <div class="container">
         <div class="header">
             <h1>use-form-persist</h1>
-            <p>Live Interactive Demo - Automatic form state persistence</p>
+            <p>Interactive Demo & Documentation - See automatic form state persistence in action</p>
         </div>
         
         <div class="demo-content">
@@ -384,6 +513,16 @@
                     }
                 }
             );
+
+            // Apply theme to body class
+            React.useEffect(() => {
+                const body = document.body;
+                if (values.preferences.theme === 'dark') {
+                    body.classList.add('dark');
+                } else {
+                    body.classList.remove('dark');
+                }
+            }, [values.preferences.theme]);
 
             const handleSubmit = (e) => {
                 e.preventDefault();
@@ -446,17 +585,21 @@
                                 </div>
 
                                 <div className="form-group">
-                                    <label>Theme Preference</label>
+                                    <label>Theme Preference {values.preferences.theme === 'dark' ? '🌙' : '☀️'}</label>
                                     <select
                                         value={values.preferences.theme}
                                         onChange={(e) => setValue('preferences', {
                                             ...values.preferences,
                                             theme: e.target.value
                                         })}
+                                        style={{
+                                            background: values.preferences.theme === 'dark' ? '#374151' : 'white',
+                                            color: values.preferences.theme === 'dark' ? '#f9fafb' : '#1f2937'
+                                        }}
                                     >
-                                        <option value="light">Light Theme</option>
-                                        <option value="dark">Dark Theme</option>
-                                        <option value="auto">Auto</option>
+                                        <option value="light">☀️ Light Theme</option>
+                                        <option value="dark">🌙 Dark Theme</option>
+                                        <option value="auto">🔄 Auto (System)</option>
                                     </select>
                                 </div>
 
@@ -500,14 +643,20 @@
                         </div>
 
                         <div className="debug-section">
-                            <h3>Live State</h3>
-                            <p><strong>Status:</strong> {isHydrated ? 'Hydrated' : 'Loading'}</p>
+                            <h3>Live State {values.preferences.theme === 'dark' ? '🌙' : '☀️'}</h3>
+                            <p><strong>Status:</strong> {isHydrated ? '✅ Hydrated' : '⏳ Loading'}</p>
                             <p><strong>Storage Key:</strong> demo-form</p>
-                            <p><strong>Auto-save:</strong> 300ms debounced</p>
+                            <p><strong>Auto-save:</strong> 300ms debounced ⚡</p>
+                            <p><strong>Theme:</strong> {values.preferences.theme === 'dark' ? '🌙 Dark Mode Active!' : '☀️ Light Mode'}</p>
                             <p><strong>Current Values:</strong></p>
                             <pre>{JSON.stringify(values, null, 2)}</pre>
-                            <p style={{fontSize: '12px', color: '#6b7280', marginTop: '10px'}}>
-                                💡 Try refreshing the page to see persistence in action!
+                            <p style={{
+                                fontSize: '12px', 
+                                color: values.preferences.theme === 'dark' ? '#94a3b8' : '#6b7280', 
+                                marginTop: '10px',
+                                transition: 'color 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+                            }}>
+                                💡 Try switching themes and refreshing to see persistence!
                             </p>
                         </div>
                     </div>
